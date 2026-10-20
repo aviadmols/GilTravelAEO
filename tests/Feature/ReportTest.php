@@ -146,7 +146,7 @@ class ReportTest extends TestCase
 
         $this->get('/')->assertOk()
             ->assertSee('Brand mention rate')
-            ->assertSee('HUBSPOT_TOKEN is not set')
+            ->assertSee('No HubSpot key yet')
             ->assertSee('Search Console is not connected');
     }
 

@@ -17,7 +17,7 @@ class HubSpotAeoClient
     {
         $token = config('hubspot.token');
         if (! $token) {
-            throw new RuntimeException('HUBSPOT_TOKEN is not set in .env');
+            throw new RuntimeException('No HubSpot key yet. Add it in Settings.');
         }
 
         return Http::baseUrl(rtrim(config('hubspot.base_url'), '/') . '/marketing/aeo/' . config('hubspot.aeo_version'))

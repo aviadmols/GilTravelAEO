@@ -14,9 +14,7 @@ php artisan migrate --force
 # Daily AEO sync (05:30) runs alongside the web server.
 php artisan schedule:work &
 
-# Pull the latest AEO runs on every boot, so a new key shows data without waiting for 05:30.
-if [ -n "$HUBSPOT_TOKEN" ]; then
-    php artisan aeo:sync || echo "initial aeo:sync failed" >&2 &
-fi
+# Pull the latest AEO runs on every boot (skips itself when no HubSpot key is set yet).
+php artisan aeo:sync || echo "initial aeo:sync failed" >&2 &
 
 exec frankenphp run --config /app/docker/Caddyfile

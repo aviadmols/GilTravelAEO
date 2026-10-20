@@ -27,6 +27,7 @@
                 <a href="{{ route('report', ['period' => $key]) }}" @class(['btn', 'btn--active' => $key === $period->key])>{{ $label }}</a>
             @endforeach
             <a href="{{ route('report', ['period' => $period->key, 'refresh' => 1]) }}" class="refresh" title="Fetch fresh numbers from HubSpot and Google">Refresh</a>
+            <a href="{{ route('settings') }}" class="settings-link">Settings</a>
         </nav>
     </div>
 </header>

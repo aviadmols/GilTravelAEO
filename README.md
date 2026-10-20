@@ -13,6 +13,8 @@
 כל סקשן נכשל לבד: אם חסר מפתח או scope, הסקשן מציג מה חסר ושאר הדוח עובד.
 
 ## HubSpot Service Key
+את המפתח מדביקים בדף Settings של הדשבורד. הוא נשמר מוצפן ב-DB וגובר על `HUBSPOT_TOKEN`. אחרי שמירה, סנכרון ה-AEO רץ תוך דקה.
+
 Development → Keys → Service Keys → Create. Scopes: `marketing.aeo.read`, `crm.objects.contacts.read`, `crm.objects.deals.read`, `forms`, `business-intelligence`.
 
 ## איך מחושבים מדדי ה-AEO

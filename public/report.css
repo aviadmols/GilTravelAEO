@@ -194,3 +194,43 @@ code { font-size: 0.92em; background: var(--surface-soft); padding: 1px 5px; bor
   .truncate { max-width: 180px; width: auto; }
   .bar { display: none; }
 }
+
+/* ---------- settings ---------- */
+.settings { max-width: 640px; padding-block-end: 48px; }
+.back { color: var(--ink-3); text-decoration: none; transition: color var(--t); }
+.back:hover { color: var(--ink); }
+.hint { font-size: 13px; color: var(--ink-2); margin: 0 0 12px; }
+.key-status { font-size: 13px; margin: 0 0 16px; }
+.key-status strong { font-weight: var(--fw-medium); }
+.notice--ok { background: var(--surface-soft); color: var(--ink); }
+.field { display: block; margin-block-end: 12px; }
+.field__label { display: block; font-size: 12px; color: var(--ink-2); margin-block-end: 4px; }
+.field input {
+  width: 100%;
+  padding: 8px 10px;
+  font: inherit;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  transition: border-color var(--t);
+}
+.field input:focus { outline: none; border-color: var(--ink-2); }
+.field__error { color: var(--bad); font-size: 12px; margin: -6px 0 12px; }
+.button {
+  padding: 8px 16px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--paper);
+  background: var(--ink);
+  border: 0;
+  border-radius: var(--r);
+  cursor: pointer;
+  transition: opacity var(--t);
+}
+.button:hover { opacity: 0.85; }
+.remove-form { margin-block-start: 16px; padding-block-start: 12px; border-block-start: 1px solid var(--rule-soft); }
+.link-button { padding: 0; font: inherit; font-size: 13px; color: var(--bad); background: none; border: 0; cursor: pointer; }
+.link-button:hover { text-decoration: underline; }
+.settings-link { margin-inline-start: auto; font-size: 13px; color: var(--ink-3); text-decoration: none; transition: color var(--t); }
+.settings-link:hover { color: var(--ink); }

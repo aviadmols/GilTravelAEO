@@ -6,6 +6,7 @@ use App\Models\AeoCitation;
 use App\Models\AeoPrompt;
 use App\Models\AeoPromptRun;
 use App\Models\AeoRecommendation;
+use App\Models\Setting;
 use App\Services\HubSpotAeoClient;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
@@ -19,6 +20,12 @@ class AeoSync extends Command
 
     public function handle(HubSpotAeoClient $api): int
     {
+        Setting::put('aeo_sync_requested', null);
+        if (! config('hubspot.token')) {
+            $this->warn('No HubSpot key yet. Add it in Settings.');
+            return self::SUCCESS;
+        }
+
         $prompts = $runs = $details = $recs = 0;
 
         foreach ($api->prompts() as $p) {
