@@ -144,9 +144,9 @@
                     <table class="table table--prompts">
                         <thead><tr><th>Prompt</th><th>Stage</th><th class="num">Answers</th><th class="num">Mention rate</th><th class="num">Change</th><th class="num">Share of voice</th><th class="num">Rank</th><th>Most mentioned</th><th>Mentioned by</th></tr></thead>
                         <tbody>
-                        @foreach ($a['prompts'] as $p)
+                        @foreach ($a['prompts'] as $i => $p)
                             @php $d = Fmt::delta($p['mention_rate'], $p['prev_mention_rate'], 'rate'); @endphp
-                            <tr>
+                            <tr @if ($i >= 20) hidden @endif>
                                 <td class="prompt">{{ $p['prompt'] }}</td>
                                 <td class="muted">{{ $p['phase'] ? ucfirst(strtolower(str_replace('_', ' ', $p['phase']))) : '' }}</td>
                                 <td class="num">{{ $p['runs'] }}</td>
@@ -161,6 +161,15 @@
                         </tbody>
                     </table>
                 </div>
+                @if (count($a['prompts']) > 20)
+                    {{-- Reveals the hidden rows 20 at a time. --}}
+                    <button type="button" class="more-button" onclick="
+                        const rows = [...this.previousElementSibling.querySelectorAll('tbody tr[hidden]')];
+                        rows.slice(0, 20).forEach(r => r.hidden = false);
+                        const left = rows.length - 20;
+                        if (left > 0) this.textContent = `Show ${Math.min(20, left)} more (${left} left)`; else this.remove();
+                    ">Show {{ min(20, count($a['prompts']) - 20) }} more ({{ count($a['prompts']) - 20 }} left)</button>
+                @endif
             </div>
             <p class="source">Source: HubSpot AEO, synced {{ $a['synced_at'] ? \Illuminate\Support\Carbon::parse($a['synced_at'])->diffForHumans() : 'never' }}. Mentions are counted by finding each brand's name in the answer text.</p>
         @endif

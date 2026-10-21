@@ -139,6 +139,25 @@ class ReportTest extends TestCase
         if ($out = env('REPORT_HTML_OUT')) file_put_contents($out, $html);
     }
 
+    public function test_prompt_table_shows_20_and_reveals_the_rest(): void
+    {
+        config(['hubspot.token' => null]);
+        foreach (range(1, 25) as $n) {
+            AeoPrompt::create(['id' => "p{$n}", 'prompt' => "Prompt number {$n}"]);
+            AeoPromptRun::create([
+                'id' => (string) Str::uuid(), 'prompt_id' => "p{$n}", 'state' => 'COMPLETED', 'ai_model' => 'CHATGPT',
+                'completed_at' => now()->startOfMonth()->addHours(9), 'total_citations' => 0, 'owned_mentions' => 0,
+                'response_text' => 'Gil Travel', 'details_fetched' => true,
+            ]);
+        }
+
+        $html = $this->get('/')->assertOk()->assertSee('Show 5 more (5 left)')->getContent();
+
+        $this->assertSame(5, preg_match_all('/<tr\s+hidden/', $html));
+
+        if ($out = env('REPORT_HTML_OUT')) file_put_contents($out, $html);
+    }
+
     public function test_sections_fail_independently(): void
     {
         config(['hubspot.token' => null]);
