@@ -1,7 +1,7 @@
 # Production image: FrankenPHP (Caddy + PHP 8.4) serving public/ on $PORT.
 FROM dunglas/frankenphp:1-php8.4-bookworm
 
-RUN install-php-extensions pdo_sqlite intl opcache
+RUN install-php-extensions pdo_sqlite intl zip opcache
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 COPY docker/php.ini $PHP_INI_DIR/conf.d/zz-app.ini
