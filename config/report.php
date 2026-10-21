@@ -17,9 +17,14 @@ return [
     'key_pages' => env('REPORT_KEY_PAGES', 'Yeshiva Break Panama=yeshiva-break-panama'),
 
     // Google Search Console. HubSpot's API does not expose the GSC data it shows in its UI,
-    // so the SEO section reads it from Google with a service account added to the property.
+    // so the SEO section reads it from Google: either a Google account connected in Settings
+    // (OAuth client below), or a service account added to the property (the two variables above it).
+    // A connected account and the property chosen for it are stored in settings and win.
     'gsc' => [
         'site_url' => env('GSC_SITE_URL'),                   // e.g. sc-domain:giltravel.com
         'credentials' => env('GOOGLE_SERVICE_ACCOUNT_JSON'), // the key file contents, raw or base64
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'refresh_token' => null,                             // set at boot from the connected account
     ],
 ];

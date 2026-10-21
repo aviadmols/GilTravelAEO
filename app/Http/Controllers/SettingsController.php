@@ -3,20 +3,43 @@
 namespace App\Http\Controllers;
 
 use App\Models\Setting;
+use App\Services\SearchConsoleClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\URL;
 
 class SettingsController extends Controller
 {
-    public function edit()
+    public function edit(Request $request, SearchConsoleClient $gsc)
     {
         $saved = Setting::find('hubspot_token');
+        $gscConnected = filled(Setting::get('gsc_refresh_token'));
+        // Lets the dashboard user open the Search Console property picker (see GoogleConnectController).
+        $request->session()->put('gsc_connect', true);
 
         return view('settings', [
             'saved' => $saved,
             'savedTail' => $saved ? substr((string) Setting::secret('hubspot_token'), -4) : null,
             'fromEnv' => ! $saved && filled(env('HUBSPOT_TOKEN')),
+            'gsc' => [
+                'ready' => $gsc->oauthReady(),
+                'connected' => $gscConnected,
+                'account' => Setting::get('gsc_account'),
+                'site' => Setting::get('gsc_site_url'),
+                'fromEnv' => ! $gscConnected && filled(env('GOOGLE_SERVICE_ACCOUNT_JSON')),
+                'connectLink' => URL::temporarySignedRoute('google.connect', now()->addDays(7)),
+                'callbackUrl' => route('google.callback'),
+            ],
         ]);
+    }
+
+    public function disconnectGoogle(SearchConsoleClient $gsc)
+    {
+        if ($token = Setting::secret('gsc_refresh_token')) $gsc->revoke($token);
+        foreach (['gsc_refresh_token', 'gsc_account', 'gsc_site_url'] as $key) Setting::put($key, null);
+        Cache::flush();
+
+        return redirect()->route('settings')->with('status', 'Google Search Console was disconnected.');
     }
 
     public function update(Request $request)

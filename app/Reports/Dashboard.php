@@ -15,6 +15,7 @@ class Dashboard
 {
     /** Section => what it needs, shown when HubSpot refuses the call. */
     private const NEEDS = [
+        'seo' => 'access to the Search Console property chosen in Settings',
         'traffic' => 'the business-intelligence scope',
         'leads' => 'the crm.objects.contacts.read, forms and business-intelligence scopes',
         'revenue' => 'the crm.objects.deals.read scope',

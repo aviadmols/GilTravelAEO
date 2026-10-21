@@ -5,7 +5,7 @@
 | סקשן | מקור | מה צריך |
 |---|---|---|
 | AI search visibility | HubSpot AEO, מסונכרן ל-DB פעם ביום (05:30) | `HUBSPOT_TOKEN` עם `marketing.aeo.read`, ורשימת מתחרים ב-`AEO_COMPETITORS` |
-| SEO | Google Search Console API (ל-HubSpot אין API לנתוני GSC) | `GSC_SITE_URL`, `GOOGLE_SERVICE_ACCOUNT_JSON` |
+| SEO | Google Search Console API (ל-HubSpot אין API לנתוני GSC) | חיבור Google בדף Settings (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`), או `GSC_SITE_URL` + `GOOGLE_SERVICE_ACCOUNT_JSON` |
 | Website traffic | HubSpot analytics, חי עם cache של שעה | scope `business-intelligence` |
 | Leads & conversions | HubSpot contacts + forms + page analytics | `crm.objects.contacts.read`, `forms`, `business-intelligence` |
 | Revenue & ROI | HubSpot deals | `crm.objects.deals.read` |
@@ -28,6 +28,18 @@ Development → Keys → Service Keys → Create. Scopes: `marketing.aeo.read`, 
 `AEO_COMPETITORS="Kesher Tours|Kesher;Other Brand"`
 
 ## Search Console
+שתי דרכים. חשבון שחובר דרך Settings גובר על ה-Service Account.
+
+**חיבור עם Google (מומלץ)** — מי שמנהל את Search Console לוחץ על לינק ומאשר, בלי להוסיף משתמשים.
+1. ב-Google Cloud: הפעל את Google Search Console API.
+2. Google Auth Platform → Branding: מלא שם ומייל. Audience: External, ולחץ **Publish app** (במצב Testing החיבור נופל אחרי 7 ימים).
+3. Clients → Create client → Web application. ב-Authorized redirect URIs הדבק את הכתובת שמופיעה בדף Settings (`https://<הדומיין>/google/callback`).
+4. ב-Railway: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`.
+5. בדף Settings: Connect with Google, או שלח את "Link for the SEO manager" (תקף 7 ימים, לא פותח את הדוח). אם יש יותר מנכס אחד, בוחרים אותו אחרי האישור.
+
+Google יציג "Google hasn't verified this app" — Advanced → Go to. כדי להעלים את זה צריך verification של Google.
+
+**Service Account**
 1. ב-Google Cloud: צור Service Account והורד מפתח JSON.
 2. ב-Search Console → Settings → Users: הוסף את כתובת ה-Service Account עם הרשאת Restricted.
 3. ב-Railway: `GSC_SITE_URL` (למשל `sc-domain:giltravel.com`) ו-`GOOGLE_SERVICE_ACCOUNT_JSON` (תוכן הקובץ, גולמי או base64).
@@ -44,7 +56,7 @@ php artisan test
 ## Railway
 שירות אחד מה-Dockerfile (FrankenPHP), volume ב-`/data` ל-SQLite. בכל עלייה: migrate, סנכרון AEO ברקע, ו-`schedule:work` לסנכרון היומי.
 
-משתנים: `APP_KEY`, `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL`, `APP_TIMEZONE`, `DB_CONNECTION=sqlite`, `DB_DATABASE=/data/database.sqlite`, `LOG_CHANNEL=stderr`, `DASHBOARD_USER`, `DASHBOARD_PASSWORD`, `HUBSPOT_TOKEN`, `AEO_OWN_BRAND`, `AEO_COMPETITORS`, `REPORT_KEY_PAGES`, `GSC_SITE_URL`, `GOOGLE_SERVICE_ACCOUNT_JSON`.
+משתנים: `APP_KEY`, `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL`, `APP_TIMEZONE`, `DB_CONNECTION=sqlite`, `DB_DATABASE=/data/database.sqlite`, `LOG_CHANNEL=stderr`, `DASHBOARD_USER`, `DASHBOARD_PASSWORD`, `HUBSPOT_TOKEN`, `AEO_OWN_BRAND`, `AEO_COMPETITORS`, `REPORT_KEY_PAGES`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` (או `GSC_SITE_URL`, `GOOGLE_SERVICE_ACCOUNT_JSON`).
 
 ## Looker Studio (אופציונלי)
 ה-migration `create_aeo_reporting_views` יוצר views רק על MySQL. על SQLite הוא מדלג.

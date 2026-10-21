@@ -1,28 +1,10 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="robots" content="noindex, nofollow">
-    <title>Report Settings</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('report.css') }}?v={{ filemtime(public_path('report.css')) }}">
-</head>
-<body>
-<header class="masthead">
-    <div class="container">
-        <div class="eyebrow"><a href="{{ route('report') }}" class="back">← Back to report</a></div>
-        <h1 class="display">Settings</h1>
-    </div>
-</header>
+@extends('layouts.settings')
 
-<main class="container"><div class="settings">
-    @if (session('status'))
-        <div class="notice notice--ok" role="status">{{ session('status') }}</div>
-    @endif
+@section('title', 'Report Settings')
+@section('eyebrow')<a href="{{ route('report') }}" class="back">← Back to report</a>@endsection
+@section('heading', 'Settings')
 
+@section('content')
     <section class="panel">
         <h2 class="panel__title">HubSpot key</h2>
         <p class="hint">
@@ -59,6 +41,52 @@
             </form>
         @endif
     </section>
-</div></main>
-</body>
-</html>
+
+    <section class="panel">
+        <h2 class="panel__title">Google Search Console</h2>
+
+        <p class="key-status">
+            @if ($gsc['connected'])
+                Connected as <strong>{{ $gsc['account'] ?? 'a Google account' }}</strong>,
+                @if ($gsc['site'])
+                    reading <strong>{{ $gsc['site'] }}</strong>.
+                @else
+                    no property chosen yet.
+                @endif
+                <a href="{{ route('google.property') }}">{{ $gsc['site'] ? 'Change property' : 'Choose property' }}</a>
+            @elseif ($gsc['fromEnv'])
+                Using the service account from the <code>GOOGLE_SERVICE_ACCOUNT_JSON</code> variable. A Google account connected here replaces it.
+            @else
+                Not connected yet.
+            @endif
+        </p>
+
+        @if (! $gsc['ready'])
+            <p class="hint">
+                To connect with Google, create an OAuth client (type <em>Web application</em>) in Google Cloud and set
+                <code>GOOGLE_CLIENT_ID</code> and <code>GOOGLE_CLIENT_SECRET</code> in Railway. Its authorized redirect URI:
+            </p>
+            <label class="field">
+                <span class="field__label">Authorized redirect URI</span>
+                <input type="text" value="{{ $gsc['callbackUrl'] }}" readonly onclick="this.select()">
+            </label>
+        @else
+            <p class="hint">
+                Connect with the Google account that has access to the property, or send the link below to whoever manages
+                Search Console. The link works for 7 days and only lets them connect Search Console; it does not open the report.
+            </p>
+            <label class="field">
+                <span class="field__label">Link for the SEO manager</span>
+                <input type="text" value="{{ $gsc['connectLink'] }}" readonly onclick="this.select()">
+            </label>
+            <a href="{{ $gsc['connectLink'] }}" class="button">{{ $gsc['connected'] ? 'Reconnect with Google' : 'Connect with Google' }}</a>
+        @endif
+
+        @if ($gsc['connected'])
+            <form method="post" action="{{ route('google.disconnect') }}" class="remove-form">
+                @csrf
+                <button type="submit" class="link-button" onclick="return confirm('Disconnect Google Search Console?')">Disconnect Google</button>
+            </form>
+        @endif
+    </section>
+@endsection

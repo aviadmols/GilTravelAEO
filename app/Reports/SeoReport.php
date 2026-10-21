@@ -13,7 +13,9 @@ class SeoReport
     public function build(ReportPeriod $period): array
     {
         if (! $this->gsc->configured()) {
-            throw new RuntimeException('Search Console is not connected. Set GSC_SITE_URL and GOOGLE_SERVICE_ACCOUNT_JSON.');
+            throw new RuntimeException(config('report.gsc.refresh_token')
+                ? 'Search Console is connected, but no property is chosen yet. Choose one in Settings.'
+                : 'Search Console is not connected. Connect it in Settings.');
         }
 
         $d = fn ($c) => $c->format('Y-m-d');
