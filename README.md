@@ -53,6 +53,8 @@ php artisan serve
 php artisan test
 ```
 
+סנכרון AEO ידני (בלי לחכות ל-05:30): `php artisan aeo:sync`. עם `--skip-details` הוא מדלג על פרטי הריצות (ציטוטים וטקסט תשובה) ורץ מהר יותר.
+
 ## Railway
 שירות אחד מה-Dockerfile (FrankenPHP), volume ב-`/data` ל-SQLite. בכל עלייה: migrate, סנכרון AEO ברקע, ו-`schedule:work` לסנכרון היומי.
 
