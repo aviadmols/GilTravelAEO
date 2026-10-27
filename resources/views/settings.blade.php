@@ -43,6 +43,39 @@
     </section>
 
     <section class="panel">
+        <h2 class="panel__title">Embed in HubSpot</h2>
+        <p class="hint">
+            A read-only link to the report that works without the login, for a HubSpot dashboard:
+            Reporting → Dashboards → Add content → External content → Other content, and paste the link.
+            Anyone with the link can see the report, so share it only inside HubSpot.
+        </p>
+
+        @if ($embedUrl)
+            <label class="field">
+                <span class="field__label">Embed link</span>
+                <input type="text" value="{{ $embedUrl }}" readonly onclick="this.select()">
+            </label>
+        @else
+            <p class="key-status">No embed link yet.</p>
+        @endif
+
+        <form method="post" action="{{ route('settings.embed') }}" class="key-form">
+            @csrf
+            <button type="submit" class="button" @if ($embedUrl) onclick="return confirm('Create a new link? The current one stops working.')" @endif>
+                {{ $embedUrl ? 'Create a new link' : 'Create embed link' }}
+            </button>
+        </form>
+
+        @if ($embedUrl)
+            <form method="post" action="{{ route('settings.embed') }}" class="remove-form">
+                @csrf
+                <input type="hidden" name="remove" value="1">
+                <button type="submit" class="link-button" onclick="return confirm('Turn off the embed link?')">Turn off embed link</button>
+            </form>
+        @endif
+    </section>
+
+    <section class="panel">
         <h2 class="panel__title">Google Search Console</h2>
 
         <p class="key-status">

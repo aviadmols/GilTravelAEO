@@ -3,6 +3,8 @@
     use App\Reports\ReportPeriod;
     $aeo = $sections['aeo']; $seo = $sections['seo']; $traffic = $sections['traffic'];
     $leads = $sections['leads']; $revenue = $sections['revenue'];
+    $embedToken ??= null;
+    $reportUrl = fn (array $query) => $embedToken ? route('embed', ['token' => $embedToken] + $query) : route('report', $query);
 @endphp
 <!doctype html>
 <html lang="en">
@@ -24,10 +26,12 @@
         <p class="period-range">{{ $period->range() }} <span class="muted">compared with {{ $period->prevRange() }}</span></p>
         <nav class="periods" aria-label="Report period">
             @foreach (ReportPeriod::PRESETS as $key => $label)
-                <a href="{{ route('report', ['period' => $key]) }}" @class(['btn', 'btn--active' => $key === $period->key])>{{ $label }}</a>
+                <a href="{{ $reportUrl(['period' => $key]) }}" @class(['btn', 'btn--active' => $key === $period->key])>{{ $label }}</a>
             @endforeach
-            <a href="{{ route('report', ['period' => $period->key, 'refresh' => 1]) }}" class="refresh" title="Fetch fresh numbers from HubSpot and Google">Refresh</a>
-            <a href="{{ route('settings') }}" class="settings-link">Settings</a>
+            @unless ($embedToken)
+                <a href="{{ route('report', ['period' => $period->key, 'refresh' => 1]) }}" class="refresh" title="Fetch fresh numbers from HubSpot and Google">Refresh</a>
+                <a href="{{ route('settings') }}" class="settings-link">Settings</a>
+            @endunless
         </nav>
     </div>
 </header>

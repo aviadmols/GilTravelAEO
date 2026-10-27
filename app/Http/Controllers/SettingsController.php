@@ -7,6 +7,7 @@ use App\Services\SearchConsoleClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
 
 class SettingsController extends Controller
 {
@@ -20,6 +21,7 @@ class SettingsController extends Controller
         return view('settings', [
             'saved' => $saved,
             'savedTail' => $saved ? substr((string) Setting::secret('hubspot_token'), -4) : null,
+            'embedUrl' => ($token = Setting::secret('embed_token')) ? route('embed', $token) : null,
             'fromEnv' => ! $saved && filled(env('HUBSPOT_TOKEN')),
             'gsc' => [
                 'ready' => $gsc->oauthReady(),
@@ -31,6 +33,17 @@ class SettingsController extends Controller
                 'callbackUrl' => route('google.callback'),
             ],
         ]);
+    }
+
+    /** Creates the HubSpot embed link, or replaces it so the old one stops working. */
+    public function embed(Request $request)
+    {
+        $remove = $request->boolean('remove');
+        Setting::putSecret('embed_token', $remove ? null : Str::random(40));
+
+        return redirect()->route('settings')->with('status', $remove
+            ? 'The embed link was turned off.'
+            : 'New embed link created. A link added to HubSpot before this one no longer works.');
     }
 
     public function disconnectGoogle(SearchConsoleClient $gsc)

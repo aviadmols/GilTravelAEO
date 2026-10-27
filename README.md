@@ -44,6 +44,11 @@ Google יציג "Google hasn't verified this app" — Advanced → Go to. כדי
 2. ב-Search Console → Settings → Users: הוסף את כתובת ה-Service Account עם הרשאת Restricted.
 3. ב-Railway: `GSC_SITE_URL` (למשל `sc-domain:giltravel.com`) ו-`GOOGLE_SERVICE_ACCOUNT_JSON` (תוכן הקובץ, גולמי או base64).
 
+## הטמעה בדשבורד של HubSpot
+בדף Settings → Embed in HubSpot → Create embed link. הלינק (`/embed/<token>`) פותח את הדוח לקריאה בלבד בלי התחברות, ומותר להטמיע אותו רק מ-`*.hubspot.com`.
+ב-HubSpot: Reporting → Dashboards → Add content → External content → Other content, ומדביקים את הלינק. דורש Professional ומעלה באחד ה-Hubs.
+כל מי שיש לו את הלינק רואה את הדוח. Create a new link מבטל את הקודם.
+
 ## פיתוח מקומי
 ```bash
 composer install
