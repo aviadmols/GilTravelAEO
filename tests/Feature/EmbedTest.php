@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Http\Controllers\EmbedController;
 use App\Models\Setting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -28,7 +29,8 @@ class EmbedTest extends TestCase
 
         $this->get('/embed/tok123?period=last_month')
             ->assertOk()
-            ->assertHeader('Content-Security-Policy', "frame-ancestors 'self' https://*.hubspot.com")
+            ->assertHeader('Content-Security-Policy', EmbedController::FRAME_ANCESTORS)
+            ->assertHeaderMissing('X-Frame-Options')
             ->assertSee('Marketing report')
             ->assertSee('/embed/tok123?period=mtd', false)
             ->assertDontSee('/settings', false);

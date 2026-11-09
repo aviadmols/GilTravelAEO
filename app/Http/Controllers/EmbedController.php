@@ -10,6 +10,14 @@ use Illuminate\Http\Request;
 /** The report without the dashboard login, for the HubSpot dashboard's external content card. */
 class EmbedController extends Controller
 {
+    /**
+     * Only HubSpot may frame it; Basic Auth prompts don't work inside its iframe.
+     * HubSpot nests the card in a preview.hubspoteditor.com frame inside app.hubspot.com,
+     * and frame-ancestors checks every ancestor, so both domains must be listed.
+     */
+    public const FRAME_ANCESTORS = "frame-ancestors 'self' https://app.hubspot.com https://*.hubspot.com"
+        .' https://preview.hubspoteditor.com https://*.hubspoteditor.com';
+
     public function __invoke(Request $request, Dashboard $dashboard, string $token)
     {
         $saved = (string) Setting::secret('embed_token');
@@ -23,7 +31,7 @@ class EmbedController extends Controller
                 'sections' => $dashboard->build($period),
                 'embedToken' => $token,
             ])
-            // Only HubSpot may frame it; Basic Auth prompts don't work inside its iframe.
-            ->header('Content-Security-Policy', "frame-ancestors 'self' https://*.hubspot.com");
+            ->header('Content-Security-Policy', self::FRAME_ANCESTORS)
+            ->withoutHeader('X-Frame-Options');
     }
 }
