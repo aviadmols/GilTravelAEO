@@ -64,7 +64,9 @@ class AeoPushTest extends TestCase
 
         $this->artisan('aeo:push')->assertSuccessful();
 
-        Http::assertSent(fn (Request $r) => $r->method() === 'POST' && str_ends_with($r->url(), '/crm/v3/schemas') && $r['name'] === 'aeo_metric');
+        Http::assertSent(fn (Request $r) => $r->method() === 'POST' && str_ends_with($r->url(), '/crm/v3/schemas') && $r['name'] === 'aeo_metric'
+            // HubSpot refuses select options that share a display order.
+            && array_column(collect($r['properties'])->firstWhere('name', 'aeo_own')['options'], 'displayOrder') === [0, 1]);
 
         // 3 answers with text x 2 brands.
         $inputs = $this->inputs();
@@ -96,6 +98,26 @@ class AeoPushTest extends TestCase
         Http::assertNotSent(fn (Request $r) => $r->method() === 'POST' && str_ends_with($r->url(), '/crm/v3/schemas'));
         Http::assertSent(fn (Request $r) => str_contains($r->url(), '/crm/v3/objects/2-555/batch/upsert'));
         $this->assertCount(4, $this->inputs()); // r1 and r2 only
+    }
+
+    public function test_an_existing_object_gets_the_properties_it_is_missing(): void
+    {
+        Http::fake([
+            'api.hubapi.com/crm/v3/schemas' => Http::response(['results' => [[
+                'name' => 'aeo_metric', 'objectTypeId' => '2-555',
+                'properties' => [['name' => 'aeo_key'], ['name' => 'aeo_date'], ['name' => 'aeo_engine'], ['name' => 'aeo_prompt'],
+                    ['name' => 'aeo_stage'], ['name' => 'aeo_brand'], ['name' => 'aeo_mentioned'], ['name' => 'aeo_citations'], ['name' => 'aeo_owned_citations']],
+            ]]]),
+            'api.hubapi.com/crm/v3/properties/2-555/groups' => Http::response(['results' => [['name' => 'aeo_metric_information']]]),
+            'api.hubapi.com/crm/v3/properties/2-555' => Http::response(['name' => 'aeo_own'], 201),
+            'api.hubapi.com/crm/v3/objects/*/batch/upsert' => Http::response(['status' => 'COMPLETE']),
+        ]);
+
+        $this->artisan('aeo:push')->assertSuccessful();
+
+        Http::assertSent(fn (Request $r) => $r->method() === 'POST' && str_ends_with($r->url(), '/crm/v3/properties/2-555')
+            && $r['name'] === 'aeo_own' && $r['groupName'] === 'aeo_metric_information');
+        Http::assertSentCount(4); // schemas, groups, the one missing property, one upsert
     }
 
     public function test_it_does_nothing_unless_turned_on(): void

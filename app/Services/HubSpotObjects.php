@@ -19,12 +19,29 @@ class HubSpotObjects
     {
         foreach ($this->hubspot->get('/crm/v3/schemas')['results'] ?? [] as $existing) {
             if (($existing['name'] ?? null) === $schema['name']) {
+                $this->addMissingProperties($existing, $schema['properties']);
+
                 return $existing['objectTypeId'];
             }
         }
         if ($onCreate) $onCreate();
 
         return $this->hubspot->post('/crm/v3/schemas', $schema + ['associatedObjects' => []])['objectTypeId'];
+    }
+
+    /** Properties added to the schema later, or left out when HubSpot created the object but refused a property. */
+    private function addMissingProperties(array $existing, array $properties): void
+    {
+        if (! isset($existing['properties'])) return;
+        $have = array_column($existing['properties'], 'name');
+        $missing = array_filter($properties, fn ($p) => ! in_array($p['name'], $have, true));
+        if (! $missing) return;
+
+        $type = $existing['objectTypeId'];
+        $group = $this->hubspot->get("/crm/v3/properties/{$type}/groups")['results'][0]['name'] ?? null;
+        foreach ($missing as $property) {
+            $this->hubspot->post("/crm/v3/properties/{$type}", $property + array_filter(['groupName' => $group]));
+        }
     }
 
     /** Creates or updates records by their unique id property, 100 per call. */
@@ -50,9 +67,10 @@ class HubSpotObjects
     /** Select options from value => label. */
     public static function options(array $labels): array
     {
-        $i = 0;
-
-        return array_map(fn ($value, $label) => ['label' => $label, 'value' => (string) $value, 'displayOrder' => $i++], array_keys($labels), $labels);
+        return array_map(
+            fn ($value, $label, $order) => ['label' => $label, 'value' => (string) $value, 'displayOrder' => $order],
+            array_keys($labels), $labels, range(0, count($labels) - 1),
+        );
     }
 
     public static function explain(Throwable $e): string
