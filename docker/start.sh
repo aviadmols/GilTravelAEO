@@ -17,4 +17,7 @@ php artisan schedule:work &
 # Pull the latest AEO runs on every boot (skips itself when no HubSpot key is set yet).
 php artisan aeo:sync || echo "initial aeo:sync failed" >&2 &
 
+# Same for the Search Console copy in HubSpot (skips itself unless HUBSPOT_SEO_SYNC=true).
+php artisan seo:sync || echo "initial seo:sync failed" >&2 &
+
 exec frankenphp run --config /app/docker/Caddyfile

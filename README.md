@@ -1,4 +1,4 @@
-# Gil Travel Report
+# Gil Travel SEO AEO Report
 
 דשבורד דוח שיווק ל-Gil Travel: AI visibility (AEO), SEO, תנועה, לידים והכנסות. Laravel 13, SQLite, פריסה ב-Railway.
 
@@ -43,6 +43,15 @@ Google יציג "Google hasn't verified this app" — Advanced → Go to. כדי
 1. ב-Google Cloud: צור Service Account והורד מפתח JSON.
 2. ב-Search Console → Settings → Users: הוסף את כתובת ה-Service Account עם הרשאת Restricted.
 3. ב-Railway: `GSC_SITE_URL` (למשל `sc-domain:giltravel.com`) ו-`GOOGLE_SERVICE_ACCOUNT_JSON` (תוכן הקובץ, גולמי או base64).
+
+## נתוני SEO ב-Reports של HubSpot (Custom Object)
+ה-Custom Report Builder של HubSpot לא מציע את Search Console כמקור נתונים. `php artisan seo:sync` מעתיק את נתוני GSC ל-Custom Object בשם **SEO metrics**, ואותו כן אפשר לבחור שם. דורש Enterprise באחד ה-Hubs.
+1. ב-Service Key מוסיפים את ה-scopes `crm.schemas.custom.read`, `crm.schemas.custom.write`, `crm.objects.custom.read`, `crm.objects.custom.write`.
+2. ב-Railway: `HUBSPOT_SEO_SYNC=true`. אופציונלי: `HUBSPOT_SEO_SYNC_ROWS` (כמה שאילתות ודפים מובילים לכל יום, ברירת מחדל 25).
+3. Redeploy. בעלייה הסנכרון יוצר את האובייקט וממלא 90 ימים אחורה. אחר כך הוא רץ כל יום ב-06:00 ומעדכן את 5 הימים האחרונים, כי נתוני GSC ממשיכים להשתנות כמה ימים. ידני: `php artisan seo:sync --days=30`.
+4. ב-HubSpot: Reports → Create report → Create report on your own → Primary data source: **SEO metrics**.
+
+כל רשומה היא יום אחד: Type = `Total` (סך הכל באתר), `Query` (שאילתה) או `Page` (דף). בדוחות מסננים לפי Type, כדי לא לספור פעמיים. Clicks ו-Impressions מסכמים עם Sum, ו-CTR ו-Average position עם Average.
 
 ## הטמעה בדשבורד של HubSpot
 בדף Settings → Embed in HubSpot → Create embed link. הלינק (`/embed/<token>`) פותח את הדוח לקריאה בלבד בלי התחברות, ומותר להטמיע אותו רק מ-`*.hubspot.com`.
