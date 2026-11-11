@@ -76,6 +76,37 @@ class GoogleConnectTest extends TestCase
         $this->assertTrue(app(SearchConsoleClient::class)->configured());
     }
 
+    public function test_reconnecting_the_same_account_keeps_its_token_and_property(): void
+    {
+        Setting::putSecret('gsc_refresh_token', 'old-refresh');
+        Setting::put('gsc_account', 'seo@agency.com');
+        Setting::put('gsc_site_url', 'https://www.giltravel.com/');
+        $this->fakeGoogle([
+            ['siteUrl' => 'https://www.giltravel.com/', 'permissionLevel' => 'siteOwner'],
+            ['siteUrl' => 'sc-domain:giltravel.com', 'permissionLevel' => 'siteOwner'],
+        ]);
+        $state = $this->openConnectLink();
+
+        $this->get("/google/callback?code=abc&state={$state}")->assertRedirect('/google/property');
+
+        // Revoking the old token would revoke Google's whole grant, the new token included.
+        Http::assertNotSent(fn ($r) => str_contains($r->url(), 'oauth2.googleapis.com/revoke'));
+        $this->assertSame('g-refresh', Setting::secret('gsc_refresh_token'));
+        $this->assertSame('https://www.giltravel.com/', Setting::get('gsc_site_url'));
+    }
+
+    public function test_connecting_another_account_revokes_the_old_one(): void
+    {
+        Setting::putSecret('gsc_refresh_token', 'old-refresh');
+        Setting::put('gsc_account', 'someone-else@example.com');
+        $this->fakeGoogle([['siteUrl' => 'sc-domain:giltravel.com', 'permissionLevel' => 'siteOwner']]);
+        $state = $this->openConnectLink();
+
+        $this->get("/google/callback?code=abc&state={$state}")->assertRedirect('/google/property');
+
+        Http::assertSent(fn ($r) => str_contains($r->url(), 'oauth2.googleapis.com/revoke') && $r['token'] === 'old-refresh');
+    }
+
     public function test_property_is_chosen_from_the_accounts_list(): void
     {
         $this->fakeGoogle([

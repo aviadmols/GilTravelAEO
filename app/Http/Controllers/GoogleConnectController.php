@@ -48,7 +48,13 @@ class GoogleConnectController extends Controller
             return $this->failed($e->getMessage());
         }
 
-        if ($old = Setting::secret('gsc_refresh_token')) $this->gsc->revoke($old);
+        // Google revokes the whole grant of an account, so revoking the old token of the same
+        // account would also kill the token just issued. Only another account's token goes.
+        $old = Setting::secret('gsc_refresh_token');
+        $sameAccount = $token['email'] && Setting::get('gsc_account') === $token['email'];
+        if ($old && ! $sameAccount) $this->gsc->revoke($old);
+        $previousSite = $sameAccount ? Setting::get('gsc_site_url') : null;
+
         Setting::putSecret('gsc_refresh_token', $token['refresh_token']);
         Setting::put('gsc_account', $token['email']);
         Setting::put('gsc_site_url', null);
@@ -56,9 +62,10 @@ class GoogleConnectController extends Controller
         Cache::put('gsc:access-token', $token['access_token'], now()->addSeconds($token['expires_in'] - 300));
         config(['report.gsc.refresh_token' => $token['refresh_token']]);
 
-        // One property is the usual case: pick it so the report works right away.
+        // Keep the property of a reconnect; otherwise one property is the usual case, so pick it.
         $sites = rescue(fn () => $this->gsc->sites(), [], false);
-        if (count($sites) === 1) Setting::put('gsc_site_url', $sites[0]);
+        if ($previousSite && in_array($previousSite, $sites, true)) Setting::put('gsc_site_url', $previousSite);
+        elseif (count($sites) === 1) Setting::put('gsc_site_url', $sites[0]);
 
         return redirect()->route('google.property')->with('status', 'Connected to Google as ' . ($token['email'] ?? 'your account') . '.');
     }
