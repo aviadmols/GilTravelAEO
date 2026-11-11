@@ -27,4 +27,11 @@ return [
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'refresh_token' => null,                             // set at boot from the connected account
     ],
+
+    // Ahrefs Rank Tracker: tracked keywords in the SEO section (and keywords:sync into HubSpot).
+    'ahrefs' => [
+        'key' => env('AHREFS_API_KEY'),
+        'project_id' => env('AHREFS_PROJECT_ID'),
+        'device' => env('AHREFS_DEVICE', 'desktop'),
+    ],
 ];

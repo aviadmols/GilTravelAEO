@@ -59,6 +59,9 @@ class ReportTest extends TestCase
     private function fakeHubSpot(): void
     {
         Http::fake([
+            'api.ahrefs.com/*' => Http::response(['overviews' => [
+                ['keyword' => 'yeshiva break panama', 'position' => 3, 'position_prev' => 5, 'volume' => 900, 'traffic' => 210, 'url' => 'https://giltravel.com/yeshiva-break-panama'],
+            ]]),
             'api.hubapi.com/analytics/v2/reports/sources/*' => Http::response([
                 'totals' => ['visits' => 1200, 'rawViews' => 3400],
                 'breakdowns' => [
@@ -120,11 +123,13 @@ class ReportTest extends TestCase
     public function test_full_report_renders(): void
     {
         config(['report.gsc.site_url' => 'sc-domain:giltravel.com', 'report.gsc.credentials' => '{}']);
+        config(['report.ahrefs.key' => 'ahrefs-key', 'report.ahrefs.project_id' => '1']);
         Cache::put('gsc:access-token', 'g-token', 60); // skips signing the Google token request
         $this->seedAeo();
         $this->fakeHubSpot();
 
         $html = $this->get('/')->assertOk()
+            ->assertSee('Tracked keywords')
             ->assertSee('Brand mention rate')
             ->assertSee('Kesher Tours')
             ->assertSee('yeshiva break trips')       // GSC query

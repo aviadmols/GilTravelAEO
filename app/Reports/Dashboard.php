@@ -16,6 +16,7 @@ class Dashboard
     /** Section => what it needs, shown when HubSpot refuses the call. */
     private const NEEDS = [
         'seo' => 'access to the Search Console property chosen in Settings',
+        'keywords' => 'access to the Ahrefs Rank Tracker project in AHREFS_PROJECT_ID',
         'traffic' => 'the business-intelligence scope',
         'leads' => 'the crm.objects.contacts.read, forms and business-intelligence scopes',
         'revenue' => 'the crm.objects.deals.read scope',
@@ -25,12 +26,14 @@ class Dashboard
         private AeoReport $aeo,
         private SeoReport $seo,
         private HubSpotReport $hubspot,
+        private KeywordsReport $keywords,
     ) {}
 
     public function build(ReportPeriod $period, bool $refresh = false): array
     {
         $live = [
             'seo' => fn () => $this->seo->build($period),
+            'keywords' => fn () => $this->keywords->build($period),
             'traffic' => fn () => $this->hubspot->traffic($period),
             'leads' => fn () => $this->hubspot->leads($period),
             'revenue' => fn () => $this->hubspot->revenue($period),

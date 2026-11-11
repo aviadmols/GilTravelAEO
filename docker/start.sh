@@ -20,5 +20,6 @@ php artisan schedule:work &
 
 # Same for the Search Console copy in HubSpot (skips itself unless HUBSPOT_SEO_SYNC=true).
 php artisan seo:sync || echo "initial seo:sync failed" >&2 &
+php artisan keywords:sync || echo "initial keywords:sync failed" >&2 &
 
 exec frankenphp run --config /app/docker/Caddyfile

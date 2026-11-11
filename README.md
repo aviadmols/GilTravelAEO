@@ -53,6 +53,14 @@ Google יציג "Google hasn't verified this app" — Advanced → Go to. כדי
 
 כל רשומה היא יום אחד: Type = `Total` (סך הכל באתר), `Query` (שאילתה) או `Page` (דף). בדוחות מסננים לפי Type, כדי לא לספור פעמיים. Clicks ו-Impressions מסכמים עם Sum, ו-CTR ו-Average position עם Average.
 
+## מילות מפתח מ-Ahrefs
+בסקשן ה-SEO יש טבלת **Tracked keywords** מ-Ahrefs Rank Tracker: מיקום, שינוי מול סוף התקופה הקודמת, נפח חיפוש, תנועה ודף מדורג. ה-endpoint חינמי ולא צורך API units, אבל צריך מפתח API של Ahrefs.
+1. ב-Ahrefs: Account settings → API keys → יצירת מפתח.
+2. ב-Railway: `AHREFS_API_KEY`, `AHREFS_PROJECT_ID` (המספר שב-URL של פרויקט ה-Rank Tracker) ואופציונלי `AHREFS_DEVICE` (`desktop` או `mobile`).
+3. ל-HubSpot: `HUBSPOT_KEYWORDS_SYNC=true`. `php artisan keywords:sync` יוצר Custom Object בשם **Keyword rankings**, רשומה לכל מילת מפתח לכל בדיקה של Ahrefs. בפעם הראשונה הוא לוקח גם 12 שבועות אחורה, ואחר כך רץ כל יום ב-07:00.
+
+ב-HubSpot: Position עם Average (נמוך יותר זה טוב יותר), Places gained (חיובי = עלייה), ו-In top 10 עם Sum לספירת מילות מפתח בעמוד הראשון.
+
 ## נתוני AEO ב-Reports של HubSpot (Custom Object)
 ל-HubSpot יש את תשובות ה-AI (AI search prompts / citations), אבל לא את זיהוי המותגים שהדוח עושה. `php artisan aeo:push` מעתיק אותו ל-Custom Object בשם **AEO metrics**. אותם scopes ואותו Enterprise כמו ב-SEO.
 1. ב-Railway: `HUBSPOT_AEO_SYNC=true`.

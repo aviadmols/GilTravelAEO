@@ -13,4 +13,7 @@ return [
 
     // aeo:push copies brand mentions per AI answer into the "AEO metrics" custom object.
     'aeo_sync' => (bool) env('HUBSPOT_AEO_SYNC', false),
+
+    // keywords:sync copies the Ahrefs Rank Tracker keywords into the "Keyword rankings" custom object.
+    'keywords_sync' => (bool) env('HUBSPOT_KEYWORDS_SYNC', false),
 ];

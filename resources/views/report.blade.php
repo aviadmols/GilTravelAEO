@@ -1,7 +1,7 @@
 @php
     use App\Reports\Fmt;
     use App\Reports\ReportPeriod;
-    $aeo = $sections['aeo']; $seo = $sections['seo']; $traffic = $sections['traffic'];
+    $aeo = $sections['aeo']; $seo = $sections['seo']; $keywords = $sections['keywords']; $traffic = $sections['traffic'];
     $leads = $sections['leads']; $revenue = $sections['revenue'];
     $embedToken ??= null;
     $reportUrl = fn (array $query) => $embedToken ? route('embed', ['token' => $embedToken] + $query) : route('report', $query);
@@ -221,6 +221,46 @@
             </div>
             <p class="source">Source: Google Search Console. Data from the last 2–3 days may still be incomplete.</p>
         @endif
+
+        <div class="panel panel--spaced">
+            <h3 class="panel__title">Tracked keywords
+                @if ($keywords['ok'])<span class="muted">({{ count($keywords['data']['keywords']) }}, {{ $keywords['data']['top10'] }} in the top 10)</span>@endif
+            </h3>
+            @if (! $keywords['ok'])
+                <x-section-error :message="$keywords['error']" />
+            @else
+                @php $k = $keywords['data']; @endphp
+                @forelse ($k['keywords'] as $i => $r)
+                    @if ($loop->first)<div class="table-wrap"><table class="table"><thead><tr><th>Keyword</th><th class="num">Position</th><th class="num">Change</th><th class="num">Volume</th><th class="num">Traffic</th><th>Ranking page</th></tr></thead><tbody>@endif
+                    <tr @if ($i >= 20) hidden @endif>
+                        <td>{{ $r['keyword'] }}</td>
+                        <td class="num">{{ $r['position'] ?? '—' }}</td>
+                        <td class="num">
+                            @if ($r['change'])
+                                <span @class(['delta', 'delta--good' => $r['change'] > 0, 'delta--bad' => $r['change'] < 0])><span aria-hidden="true">{{ $r['change'] > 0 ? '▲' : '▼' }}</span> {{ abs($r['change']) }}</span>
+                            @elseif ($r['position'] !== null && $r['position_prev'] === null)
+                                <span class="delta delta--good">new</span>
+                            @endif
+                        </td>
+                        <td class="num">{{ Fmt::num($r['volume']) }}</td>
+                        <td class="num">{{ Fmt::num($r['traffic']) }}</td>
+                        <td class="truncate muted" title="{{ $r['url'] }}">{{ $r['url'] ? Fmt::url($r['url']) : '—' }}</td>
+                    </tr>
+                    @if ($loop->last)</tbody></table></div>@endif
+                @empty
+                    <x-empty>No tracked keywords in the Ahrefs project.</x-empty>
+                @endforelse
+                @if (count($k['keywords']) > 20)
+                    <button type="button" class="more-button" onclick="
+                        const rows = [...this.previousElementSibling.querySelectorAll('tbody tr[hidden]')];
+                        rows.slice(0, 20).forEach(r => r.hidden = false);
+                        const left = rows.length - 20;
+                        if (left > 0) this.textContent = `Show ${Math.min(20, left)} more (${left} left)`; else this.remove();
+                    ">Show {{ min(20, count($k['keywords']) - 20) }} more ({{ count($k['keywords']) - 20 }} left)</button>
+                @endif
+                <p class="source">Source: Ahrefs Rank Tracker ({{ config('report.ahrefs.device') }}), positions on {{ $k['date']->format('M j') }} against {{ $k['compared']->format('M j') }}.</p>
+            @endif
+        </div>
     </div>
 </section>
 
