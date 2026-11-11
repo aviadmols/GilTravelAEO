@@ -12,6 +12,10 @@ class ReportController extends Controller
     {
         $period = ReportPeriod::fromKey($request->query('period'));
 
+        if ($this->showLoader($request, $dashboard, $period)) {
+            return view('report-loading', ['period' => $period]);
+        }
+
         return view('report', [
             'period' => $period,
             'sections' => $dashboard->build($period, $request->boolean('refresh')),

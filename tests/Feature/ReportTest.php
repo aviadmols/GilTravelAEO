@@ -120,6 +120,26 @@ class ReportTest extends TestCase
         $this->assertSame(['ChatGPT', 'Gemini', 'Perplexity'], collect($a['engines'])->pluck('engine')->sort()->values()->all());
     }
 
+    public function test_a_browser_gets_the_loading_page_until_the_sections_are_cached(): void
+    {
+        config(['report.gsc.site_url' => 'sc-domain:giltravel.com', 'report.gsc.credentials' => '{}']);
+        config(['report.ahrefs.key' => 'ahrefs-key', 'report.ahrefs.project_id' => '1']);
+        Cache::put('gsc:access-token', 'g-token', 3600);
+        $this->fakeHubSpot();
+        $browser = ['Sec-Fetch-Mode' => 'navigate'];
+
+        $this->get('/?period=last_7', $browser)->assertOk()
+            ->assertSee('Loading the report')
+            ->assertSee('SEO AEO Report')
+            ->assertDontSee('Website traffic');
+
+        // The loading page fetches ?content=1, which builds and caches the report.
+        $this->get('/?period=last_7&content=1')->assertOk()->assertSee('Website traffic');
+
+        $this->get('/?period=last_7', $browser)->assertOk()->assertSee('Website traffic')->assertDontSee('Loading the report');
+        $this->get('/?period=last_7&refresh=1', $browser)->assertOk()->assertSee('Loading the report');
+    }
+
     public function test_full_report_renders(): void
     {
         config(['report.gsc.site_url' => 'sc-domain:giltravel.com', 'report.gsc.credentials' => '{}']);

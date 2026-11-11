@@ -25,12 +25,11 @@ class EmbedController extends Controller
 
         $period = ReportPeriod::fromKey($request->query('period'));
 
-        return response()
-            ->view('report', [
-                'period' => $period,
-                'sections' => $dashboard->build($period),
-                'embedToken' => $token,
-            ])
+        $response = $this->showLoader($request, $dashboard, $period)
+            ? response()->view('report-loading', ['period' => $period, 'embedToken' => $token])
+            : response()->view('report', ['period' => $period, 'sections' => $dashboard->build($period), 'embedToken' => $token]);
+
+        return $response
             ->header('Content-Security-Policy', self::FRAME_ANCESTORS)
             ->withoutHeader('X-Frame-Options');
     }

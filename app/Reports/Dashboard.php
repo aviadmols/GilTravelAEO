@@ -41,7 +41,7 @@ class Dashboard
 
         $sections = ['aeo' => $this->run('aeo', fn () => $this->aeo->build($period))];
         foreach ($live as $name => $fn) {
-            $key = "report:{$name}:{$period->key}:{$period->end->toDateString()}";
+            $key = $this->key($name, $period);
             if ($refresh) Cache::forget($key);
             $result = Cache::get($key) ?? $this->run($name, $fn);
             // Errors are not cached, so a fixed token or scope shows up on the next load.
@@ -50,6 +50,21 @@ class Dashboard
         }
 
         return $sections;
+    }
+
+    /** Whether every live section of the period is cached, so the page renders without waiting on the APIs. */
+    public function cached(ReportPeriod $period): bool
+    {
+        foreach (array_keys(self::NEEDS) as $name) {
+            if (! Cache::has($this->key($name, $period))) return false;
+        }
+
+        return true;
+    }
+
+    private function key(string $name, ReportPeriod $period): string
+    {
+        return "report:{$name}:{$period->key}:{$period->end->toDateString()}";
     }
 
     private function run(string $name, callable $fn): array
