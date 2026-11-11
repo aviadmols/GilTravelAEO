@@ -12,7 +12,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
-    <title>Gil Travel Report</title>
+    <title>Gil Travel SEO AEO Report</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;900&display=swap" rel="stylesheet">
@@ -22,7 +22,7 @@
 <header class="masthead">
     <div class="container">
         <div class="eyebrow">Gil Travel</div>
-        <h1 class="display">Marketing report</h1>
+        <h1 class="display">SEO AEO Report</h1>
         <p class="period-range">{{ $period->range() }} <span class="muted">compared with {{ $period->prevRange() }}</span></p>
         <nav class="periods" aria-label="Report period">
             @foreach (ReportPeriod::PRESETS as $key => $label)

@@ -31,7 +31,7 @@ class EmbedTest extends TestCase
             ->assertOk()
             ->assertHeader('Content-Security-Policy', EmbedController::FRAME_ANCESTORS)
             ->assertHeaderMissing('X-Frame-Options')
-            ->assertSee('Marketing report')
+            ->assertSee('SEO AEO Report')
             ->assertSee('/embed/tok123?period=mtd', false)
             ->assertDontSee('/settings', false);
 

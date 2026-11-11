@@ -1,7 +1,7 @@
 @extends('layouts.settings')
 
 @section('title', 'Search Console Property')
-@section('eyebrow', 'Gil Travel marketing report')
+@section('eyebrow', 'Gil Travel SEO AEO Report')
 @section('heading', 'Search Console property')
 
 @section('content')

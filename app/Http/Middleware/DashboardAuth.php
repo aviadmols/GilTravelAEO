@@ -17,7 +17,7 @@ class DashboardAuth
             hash_equals((string) config('report.user'), (string) $request->getUser())
             && hash_equals($password, (string) $request->getPassword())
         )) {
-            return response('Login required', 401, ['WWW-Authenticate' => 'Basic realm="Gil Travel report"']);
+            return response('Login required', 401, ['WWW-Authenticate' => 'Basic realm="Gil Travel SEO AEO Report"']);
         }
 
         return $next($request);
