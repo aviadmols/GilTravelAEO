@@ -53,6 +53,17 @@ Google יציג "Google hasn't verified this app" — Advanced → Go to. כדי
 
 כל רשומה היא יום אחד: Type = `Total` (סך הכל באתר), `Query` (שאילתה) או `Page` (דף). בדוחות מסננים לפי Type, כדי לא לספור פעמיים. Clicks ו-Impressions מסכמים עם Sum, ו-CTR ו-Average position עם Average.
 
+## נתוני AEO ב-Reports של HubSpot (Custom Object)
+ל-HubSpot יש את תשובות ה-AI (AI search prompts / citations), אבל לא את זיהוי המותגים שהדוח עושה. `php artisan aeo:push` מעתיק אותו ל-Custom Object בשם **AEO metrics**. אותם scopes ואותו Enterprise כמו ב-SEO.
+1. ב-Railway: `HUBSPOT_AEO_SYNC=true`.
+2. בעלייה הוא רץ אחרי `aeo:sync` ומעלה את כל התשובות. אחר כך כל יום ב-06:30, על 14 הימים האחרונים. ידני: `php artisan aeo:push --days=30`.
+
+כל רשומה היא תשובת AI אחת × מותג אחד במעקב, עם `Mentioned (1 = yes)`:
+- **Mention rate**: פילטר Own brand = Yes, ו-Average של Mentioned.
+- **Share of voice**: Sum של Mentioned, מחולק לפי Brand (למשל Pie).
+- **לפי מנוע או prompt**: מחלקים לפי AI assistant או Prompt.
+- **Citations** ו-**Citations of our pages** מלאים רק ברשומה של המותג שלנו, כך ש-Sum לא סופר פעמיים.
+
 ## הטמעה בדשבורד של HubSpot
 בדף Settings → Embed in HubSpot → Create embed link. הלינק (`/embed/<token>`) פותח את הדוח לקריאה בלבד בלי התחברות, ומותר להטמיע אותו רק מ-`*.hubspot.com`.
 ב-HubSpot: Reporting → Dashboards → Add content → External content → Other content, ומדביקים את הלינק. דורש Professional ומעלה באחד ה-Hubs.

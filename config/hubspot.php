@@ -10,4 +10,7 @@ return [
     // for HubSpot's custom report builder. Rows = top queries and top pages kept per day.
     'seo_sync' => (bool) env('HUBSPOT_SEO_SYNC', false),
     'seo_sync_rows' => (int) env('HUBSPOT_SEO_SYNC_ROWS', 25),
+
+    // aeo:push copies brand mentions per AI answer into the "AEO metrics" custom object.
+    'aeo_sync' => (bool) env('HUBSPOT_AEO_SYNC', false),
 ];
