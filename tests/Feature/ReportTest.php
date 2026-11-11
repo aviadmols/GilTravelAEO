@@ -137,6 +137,10 @@ class ReportTest extends TestCase
         $this->get('/?period=last_7&content=1')->assertOk()->assertSee('Website traffic');
 
         $this->get('/?period=last_7', $browser)->assertOk()->assertSee('Website traffic')->assertDontSee('Loading the report');
+
+        // The cache refuses objects on the way back (cache.serializable_classes), so sections hold plain values only.
+        $sections = app(\App\Reports\Dashboard::class)->build(\App\Reports\ReportPeriod::fromKey('last_7'));
+        $this->assertEquals($sections, unserialize(serialize($sections), ['allowed_classes' => false]));
         $this->get('/?period=last_7&refresh=1', $browser)->assertOk()->assertSee('Loading the report');
     }
 

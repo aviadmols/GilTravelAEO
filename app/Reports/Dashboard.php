@@ -64,13 +64,15 @@ class Dashboard
 
     private function key(string $name, ReportPeriod $period): string
     {
-        return "report:{$name}:{$period->key}:{$period->end->toDateString()}";
+        // v2: entries cached before the sections held plain values only.
+        return "report:v2:{$name}:{$period->key}:{$period->end->toDateString()}";
     }
 
     private function run(string $name, callable $fn): array
     {
         try {
-            return ['ok' => true, 'data' => $fn(), 'fetched_at' => now()];
+            // Cached as plain values: the cache does not unserialize objects (cache.serializable_classes).
+            return ['ok' => true, 'data' => $fn(), 'fetched_at' => now()->toIso8601String()];
         } catch (Throwable $e) {
             Log::warning("Report section {$name} failed: {$e->getMessage()}");
 

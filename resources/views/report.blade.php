@@ -243,7 +243,7 @@
                         if (left > 0) this.textContent = `Show ${Math.min(20, left)} more (${left} left)`; else this.remove();
                     ">Show {{ min(20, count($k['keywords']) - 20) }} more ({{ count($k['keywords']) - 20 }} left)</button>
                 @endif
-                <p class="source">Source: Ahrefs Rank Tracker ({{ config('report.ahrefs.device') }}), positions on {{ $k['date']->format('M j') }} against {{ $k['compared']->format('M j') }}.</p>
+                <p class="source">Source: Ahrefs Rank Tracker ({{ config('report.ahrefs.device') }}), positions on {{ \Illuminate\Support\Carbon::parse($k['date'])->format('M j') }} against {{ \Illuminate\Support\Carbon::parse($k['compared'])->format('M j') }}.</p>
             @endif
         </div>
     </div>

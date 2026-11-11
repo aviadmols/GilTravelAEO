@@ -13,9 +13,10 @@ class KeywordsReport
     {
         $rows = $this->ahrefs->keywords($period->end->toDateString(), $period->prevEnd->toDateString());
 
+        // Plain values only: the cache does not unserialize objects (cache.serializable_classes).
         return [
-            'date' => $period->end,
-            'compared' => $period->prevEnd,
+            'date' => $period->end->toDateString(),
+            'compared' => $period->prevEnd->toDateString(),
             'keywords' => array_map(fn (array $r) => [
                 'keyword' => (string) ($r['keyword'] ?? ''),
                 'position' => $r['position'] ?? null,
